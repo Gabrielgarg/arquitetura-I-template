@@ -2,21 +2,15 @@ import { Request, Response } from "express"
 import { AccountDatabase } from "../database/AccountDatabase"
 import { Account } from "../models/Account"
 import { AccountDB } from "../types"
+import { AccountBusiness } from "../business/AccountBusiness"
 
 export class AccountController {
     public getAccounts = async (req: Request, res: Response) => {
         try {
-            const accountDatabase = new AccountDatabase()
-            const accountsDB: AccountDB[] = await accountDatabase.findAccounts()
-    
-            const accounts = accountsDB.map((accountDB) => new Account(
-                accountDB.id,
-                accountDB.balance,
-                accountDB.owner_id,
-                accountDB.created_at
-            ))
-    
-            res.status(200).send(accounts)
+            const accountBusiness = new AccountBusiness()
+            const output = await accountBusiness.getAccounts()
+
+            res.status(200).send(output)
         } catch (error) {
             console.log(error)
     
@@ -34,26 +28,16 @@ export class AccountController {
 
     public getAccountBalance = async (req: Request, res: Response) => {
         try {
-            const id = req.params.id
-    
-            const accountDatabase = new AccountDatabase()
-            const accountDB = await accountDatabase.findAccountById(id)
-    
-            if (!accountDB) {
-                res.status(404)
-                throw new Error("'id' não encontrado")
+            // const id = req.params.id
+
+            const input = {
+                id: req.params.id
             }
+
+            const accountBalance = new AccountBusiness()
+            const output = await accountBalance.getAccountBalanceByid(input)
     
-            const account = new Account(
-                accountDB.id,
-                accountDB.balance,
-                accountDB.owner_id,
-                accountDB.created_at
-            )
-    
-            const balance = account.getBalance()
-    
-            res.status(200).send({ balance })
+            res.status(200).send( {balance: output })
         } catch (error) {
             console.log(error)
     
